@@ -34,7 +34,7 @@ ACCOUNT_IDS_FILTER = {
 def fetch_total_balance() -> tuple[float, list[dict]]:
     r = requests.get(
         f"{MERCURY_API}/accounts",
-        headers={"Authorization": f"Bearer {MERCURY_TOKEN}"},
+        headers={"Authorization": f"Bearer secret-token:{MERCURY_TOKEN}"},
         timeout=30,
     )
     r.raise_for_status()
