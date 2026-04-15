@@ -2,10 +2,9 @@
 """
 Mercury -> Slack daily balance report.
 
-Posts a DM with total balance and yesterday's cash in / cash out / net P&L,
-computed from Mercury's transactions endpoint. Credit card accounts are
-expanded into their individual charges rather than showing the payoff
-transfer as a single line.
+Posts a DM with total balance and yesterday's cash in / cash out / net P&L.
+Credit-card payoff transfers from checking are expanded inline into the
+individual charges they covered (charges since the previous payoff).
 """
 from __future__ import annotations
 
@@ -33,6 +32,7 @@ MERCURY_HEADERS = {"Authorization": f"Bearer secret-token:{MERCURY_TOKEN}"}
 SLACK_HEADERS = {"Authorization": f"Bearer {SLACK_BOT_TOKEN}"}
 
 CREDIT_PAYOFF_KEYWORDS = ("mercury credit", "io credit", "credit card payment", "cc payment")
+VALID_STATUSES = {"sent", "posted"}
 
 
 def is_credit_account(acct: dict) -> bool:
@@ -52,6 +52,23 @@ def looks_like_credit_payoff(txn: dict) -> bool:
             if any(kw in low for kw in CREDIT_PAYOFF_KEYWORDS):
                 return True
     return False
+
+
+def txn_ts(txn: dict) -> datetime | None:
+    ts_str = txn.get("postedAt") or txn.get("createdAt")
+    if not ts_str:
+        return None
+    return datetime.fromisoformat(ts_str.replace("Z", "+00:00")).astimezone(TZ)
+
+
+def txn_counterparty(txn: dict) -> str:
+    return (
+        txn.get("counterpartyNickname")
+        or txn.get("counterpartyName")
+        or txn.get("bankDescription")
+        or txn.get("note")
+        or "Unknown"
+    )
 
 
 def fetch_accounts() -> list[dict]:
@@ -78,10 +95,10 @@ def account_balance(acct: dict) -> float:
     return float(balance)
 
 
-def fetch_transactions_for_day(account_id: str, day_start: datetime, day_end: datetime) -> list[dict]:
+def fetch_transactions(account_id: str, start_date, end_date) -> list[dict]:
     params = {
-        "start": day_start.date().isoformat(),
-        "end": day_end.date().isoformat(),
+        "start": start_date.isoformat(),
+        "end": end_date.isoformat(),
         "limit": 500,
     }
     r = requests.get(
@@ -93,28 +110,48 @@ def fetch_transactions_for_day(account_id: str, day_start: datetime, day_end: da
     r.raise_for_status()
     data = r.json()
     txns = data.get("transactions", data if isinstance(data, list) else [])
-    filtered = []
-    for t in txns:
-        status = (t.get("status") or "").lower()
-        if status not in ("sent", "posted"):
-            continue
-        ts_str = t.get("postedAt") or t.get("createdAt")
-        if not ts_str:
-            continue
-        ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00")).astimezone(TZ)
-        if day_start <= ts < day_end:
-            filtered.append(t)
-    return filtered
+    return [t for t in txns if (t.get("status") or "").lower() in VALID_STATUSES]
 
 
-def txn_counterparty(txn: dict) -> str:
-    return (
-        txn.get("counterpartyNickname")
-        or txn.get("counterpartyName")
-        or txn.get("bankDescription")
-        or txn.get("note")
-        or "Unknown"
-    )
+def build_credit_payoff_map(credit_accounts: list[dict], day_start: datetime, day_end: datetime) -> dict:
+    """
+    For each yesterday payoff on a credit account, find the charges it covered
+    (charges on that credit account since the previous payoff).
+
+    Returns: { (credit_account_id, rounded_amount): [charge_txns...] }
+    Amount is keyed on the absolute value so it matches the checking-side outflow.
+    """
+    lookback_start = (day_start - timedelta(days=60)).date()
+    end_date = day_end.date()
+    result: dict[tuple[str, float], list[dict]] = {}
+
+    for acct in credit_accounts:
+        txns = fetch_transactions(acct["id"], lookback_start, end_date)
+        dated = []
+        for t in txns:
+            ts = txn_ts(t)
+            if ts is None:
+                continue
+            dated.append((ts, t))
+        dated.sort(key=lambda x: x[0])
+
+        prev_payoff_idx = -1
+        for i, (ts, t) in enumerate(dated):
+            amount = float(t.get("amount", 0))
+            # Positive amount on a credit account = payment from checking (payoff)
+            if amount <= 0:
+                continue
+            if day_start <= ts < day_end:
+                charges = []
+                for j in range(prev_payoff_idx + 1, i):
+                    cj = dated[j][1]
+                    cj_amt = float(cj.get("amount", 0))
+                    if cj_amt < 0:
+                        charges.append(cj)
+                key = (acct["id"], round(amount, 2))
+                result[key] = charges
+            prev_payoff_idx = i
+    return result
 
 
 def fmt_money(n: float) -> str:
@@ -162,40 +199,47 @@ def main() -> int:
     accounts = fetch_accounts()
     total_balance = round(sum(account_balance(a) for a in accounts), 2)
 
+    spending_accounts = [a for a in accounts if not is_credit_account(a)]
+    credit_accounts = [a for a in accounts if is_credit_account(a)]
+
+    # Precompute, per credit account, the charge lists keyed by yesterday payoff amount.
+    payoff_map = build_credit_payoff_map(credit_accounts, day_start, day_end)
+    # Flatten: amount -> charges (first match wins if multiple credit accounts share an amount)
+    flat_payoff_map: dict[float, list[dict]] = {}
+    for (_aid, amt), charges in payoff_map.items():
+        flat_payoff_map.setdefault(amt, charges)
+
     cash_in = 0.0
     cash_out = 0.0
     outflows_by_counterparty: dict[str, float] = {}
 
-    for acct in accounts:
-        credit = is_credit_account(acct)
-        for txn in fetch_transactions_for_day(acct["id"], day_start, day_end):
-            amount = float(txn.get("amount", 0))
-            if credit:
-                # On credit accounts: negative = purchase (real expense),
-                # positive = payoff from checking (internal, ignore).
-                if amount < 0:
-                    out_amt = -amount
-                    cash_out += out_amt
-                    name = txn_counterparty(txn)
-                    outflows_by_counterparty[name] = outflows_by_counterparty.get(name, 0.0) + out_amt
+    for acct in spending_accounts:
+        for txn in fetch_transactions(acct["id"], yesterday, yesterday + timedelta(days=1)):
+            ts = txn_ts(txn)
+            if ts is None or not (day_start <= ts < day_end):
                 continue
-            # Spending accounts
+            amount = float(txn.get("amount", 0))
             if amount >= 0:
                 cash_in += amount
-            else:
-                if looks_like_credit_payoff(txn):
-                    # Skip: we expand this via the credit account's own charges.
+                continue
+            out_amt = -amount
+            cash_out += out_amt
+            if looks_like_credit_payoff(txn):
+                charges = flat_payoff_map.get(round(out_amt, 2))
+                if charges:
+                    for c in charges:
+                        c_amt = -float(c.get("amount", 0))
+                        name = txn_counterparty(c)
+                        outflows_by_counterparty[name] = outflows_by_counterparty.get(name, 0.0) + c_amt
                     continue
-                out_amt = -amount
-                cash_out += out_amt
-                name = txn_counterparty(txn)
-                outflows_by_counterparty[name] = outflows_by_counterparty.get(name, 0.0) + out_amt
+            name = txn_counterparty(txn)
+            outflows_by_counterparty[name] = outflows_by_counterparty.get(name, 0.0) + out_amt
 
     net = round(cash_in - cash_out, 2)
     cash_in = round(cash_in, 2)
     cash_out = round(cash_out, 2)
 
-    top_outflows = sorted(outflows_by_counterparty.items(), key=lambda kv: kv[1], reverse=True)[:8]
+    top_outflows = sorted(outflows_by_counterparty.items(), key=lambda kv: kv[1], reverse=True)[:10]
     breakdown_line = ""
     if top_outflows:
         parts = [f"{name} {fmt_money(amt)}" for name, amt in top_outflows]
