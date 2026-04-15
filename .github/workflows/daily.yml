@@ -1,0 +1,45 @@
+name: Daily Mercury Report
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-mercury-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run daily report
+        env:
+          MERCURY_TOKEN: ${{ secrets.MERCURY_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_USER_ID: ${{ secrets.SLACK_USER_ID }}
+          RECIPIENT_NAME: ${{ vars.RECIPIENT_NAME || 'Moran' }}
+          MERCURY_ACCOUNT_IDS: ${{ vars.MERCURY_ACCOUNT_IDS }}
+        run: python daily_report.py
+      - name: Commit updated state
+        run: |
+          if [[ -n "$(git status --porcelain state.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add state.json
+            git commit -m "chore: update daily state [skip ci]"
+            git push
+          else
+            echo "state.json unchanged"
+          fi
