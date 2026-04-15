@@ -2,23 +2,20 @@
 """
 Mercury -> Slack daily balance report.
 
-Fetches current balances from Mercury, computes daily / MTD / YTD P&L
-against a state file, and posts a DM to the configured Slack user.
+Posts a DM with total balance and today's cash in / cash out / net P&L,
+computed from Mercury's transactions endpoint.
 """
 from __future__ import annotations
 
-import json
 import os
 import sys
-from datetime import datetime
-from pathlib import Path
+from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 import requests
 
 MERCURY_API = "https://api.mercury.com/api/v1"
 SLACK_API = "https://slack.com/api"
-STATE_FILE = Path(__file__).parent / "state.json"
 TZ = ZoneInfo("Asia/Nicosia")
 
 MERCURY_TOKEN = os.environ["MERCURY_TOKEN"]
@@ -30,41 +27,61 @@ ACCOUNT_IDS_FILTER = {
     a.strip() for a in os.environ.get("MERCURY_ACCOUNT_IDS", "").split(",") if a.strip()
 }
 
+MERCURY_HEADERS = {"Authorization": f"Bearer secret-token:{MERCURY_TOKEN}"}
+SLACK_HEADERS = {"Authorization": f"Bearer {SLACK_BOT_TOKEN}"}
 
-def fetch_total_balance() -> tuple[float, list[dict]]:
-    r = requests.get(
-        f"{MERCURY_API}/accounts",
-        headers={"Authorization": f"Bearer secret-token:{MERCURY_TOKEN}"},
-        timeout=30,
-    )
+
+def fetch_accounts() -> list[dict]:
+    r = requests.get(f"{MERCURY_API}/accounts", headers=MERCURY_HEADERS, timeout=30)
     r.raise_for_status()
     payload = r.json()
     accounts = payload.get("accounts", payload if isinstance(payload, list) else [])
-    included = []
-    total = 0.0
+    result = []
     for acct in accounts:
         if acct.get("status") and acct["status"].lower() != "active":
             continue
         if ACCOUNT_IDS_FILTER and acct.get("id") not in ACCOUNT_IDS_FILTER:
             continue
-        balance = acct.get("currentBalance")
-        if balance is None:
-            balance = acct.get("availableBalance", 0)
-        total += float(balance)
-        included.append(acct)
-    if not included:
+        result.append(acct)
+    if not result:
         raise RuntimeError("No matching Mercury accounts found.")
-    return round(total, 2), included
+    return result
 
 
-def load_state() -> dict:
-    if STATE_FILE.exists():
-        return json.loads(STATE_FILE.read_text())
-    return {}
+def account_balance(acct: dict) -> float:
+    balance = acct.get("currentBalance")
+    if balance is None:
+        balance = acct.get("availableBalance", 0)
+    return float(balance)
 
 
-def save_state(state: dict) -> None:
-    STATE_FILE.write_text(json.dumps(state, indent=2) + "\n")
+def fetch_transactions_for_day(account_id: str, day_start: datetime, day_end: datetime) -> list[dict]:
+    """Fetch transactions posted during [day_start, day_end) for one account."""
+    params = {
+        "start": day_start.date().isoformat(),
+        "end": day_end.date().isoformat(),
+        "limit": 500,
+    }
+    r = requests.get(
+        f"{MERCURY_API}/account/{account_id}/transactions",
+        headers=MERCURY_HEADERS,
+        params=params,
+        timeout=30,
+    )
+    r.raise_for_status()
+    data = r.json()
+    txns = data.get("transactions", data if isinstance(data, list) else [])
+    filtered = []
+    for t in txns:
+        if (t.get("status") or "").lower() != "sent":
+            continue
+        ts_str = t.get("postedAt") or t.get("createdAt")
+        if not ts_str:
+            continue
+        ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00")).astimezone(TZ)
+        if day_start <= ts < day_end:
+            filtered.append(t)
+    return filtered
 
 
 def fmt_money(n: float) -> str:
@@ -76,25 +93,10 @@ def fmt_delta(n: float) -> str:
     return f"{arrow} {fmt_money(abs(n))}"
 
 
-MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-
-
-def build_message(name, today, current, daily, mtd, ytd):
-    month_label = f"{MONTHS[today.month - 1]} {today.year}"
-    lines = [f"Hey {name},", "", f"Balance: {fmt_money(current)}", ""]
-    if daily is not None:
-        lines += [f"Daily P&L: {fmt_delta(daily)}", ""]
-    if mtd is not None:
-        lines += [f"MTD ({month_label}): {fmt_delta(mtd)}", ""]
-    if ytd is not None:
-        lines += [f"YTD ({today.year}): {fmt_delta(ytd)}"]
-    return "\n".join(lines).rstrip()
-
-
-def open_dm(user_id):
+def open_dm(user_id: str) -> str:
     r = requests.post(
         f"{SLACK_API}/conversations.open",
-        headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}"},
+        headers=SLACK_HEADERS,
         json={"users": user_id},
         timeout=30,
     )
@@ -105,10 +107,10 @@ def open_dm(user_id):
     return data["channel"]["id"]
 
 
-def post_slack(channel, text):
+def post_slack(channel: str, text: str) -> None:
     r = requests.post(
         f"{SLACK_API}/chat.postMessage",
-        headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}"},
+        headers=SLACK_HEADERS,
         json={"channel": channel, "text": text, "mrkdwn": True},
         timeout=30,
     )
@@ -118,49 +120,59 @@ def post_slack(channel, text):
         raise RuntimeError(f"Slack chat.postMessage failed: {data}")
 
 
-def main():
-    today = datetime.now(TZ)
-    today_date = today.strftime("%Y-%m-%d")
-    month_key = today.strftime("%Y-%m")
-    year_key = str(today.year)
-    current, included = fetch_total_balance()
-    print(f"[{today_date}] current balance: {fmt_money(current)} across {len(included)} account(s)")
-    state = load_state()
-    is_new_day = state.get("today_snapshot_date") != today_date
-    if is_new_day:
-        prev_snapshot = state.get("today_snapshot")
-        state["yesterday_balance"] = prev_snapshot
-        state["yesterday_date"] = state.get("today_snapshot_date")
-        state["today_snapshot"] = current
-        state["today_snapshot_date"] = today_date
-        if state.get("month_key") != month_key:
-            state["month_start_balance"] = prev_snapshot if prev_snapshot is not None else current
-            state["month_key"] = month_key
-        if state.get("year_key") != year_key:
-            state["year_start_balance"] = prev_snapshot if prev_snapshot is not None else current
-            state["year_key"] = year_key
-    prev_balance = state.get("yesterday_balance")
-    first_run = prev_balance is None
-    if first_run:
-        message = (
-            f"Hey {RECIPIENT_NAME},\n\n"
-            f"Daily Mercury report is live.\n\n"
-            f"Starting balance: {fmt_money(current)}\n\n"
-            f"Tomorrow you'll start getting daily P&L updates."
-        )
-    else:
-        daily = current - prev_balance
-        mtd = current - state["month_start_balance"]
-        ytd = current - state["year_start_balance"]
-        message = build_message(RECIPIENT_NAME, today, current, daily, mtd, ytd)
+def main() -> int:
+    now = datetime.now(TZ)
+    yesterday = (now - timedelta(days=1)).date()
+    day_start = datetime.combine(yesterday, time.min, tzinfo=TZ)
+    day_end = day_start + timedelta(days=1)
+
+    accounts = fetch_accounts()
+    total_balance = round(sum(account_balance(a) for a in accounts), 2)
+
+    cash_in = 0.0
+    cash_out = 0.0
+    outflows_by_counterparty: dict[str, float] = {}
+    for acct in accounts:
+        for txn in fetch_transactions_for_day(acct["id"], day_start, day_end):
+            amount = float(txn.get("amount", 0))
+            if amount >= 0:
+                cash_in += amount
+            else:
+                out_amt = -amount
+                cash_out += out_amt
+                name = (
+                    txn.get("counterpartyNickname")
+                    or txn.get("counterpartyName")
+                    or txn.get("bankDescription")
+                    or "Unknown"
+                )
+                outflows_by_counterparty[name] = outflows_by_counterparty.get(name, 0.0) + out_amt
+    net = round(cash_in - cash_out, 2)
+    cash_in = round(cash_in, 2)
+    cash_out = round(cash_out, 2)
+
+    top_outflows = sorted(outflows_by_counterparty.items(), key=lambda kv: kv[1], reverse=True)[:5]
+    breakdown_line = ""
+    if top_outflows:
+        parts = [f"{name} {fmt_money(amt)}" for name, amt in top_outflows]
+        breakdown_line = f" ({', '.join(parts)})"
+
+    date_label = yesterday.strftime("%b %d, %Y")
+    message = (
+        f"Hey {RECIPIENT_NAME},\n\n"
+        f"Total balance: {fmt_money(total_balance)}\n\n"
+        f"Daily P&L ({date_label}): {fmt_delta(net)}\n"
+        f"  Cash in:  {fmt_money(cash_in)}\n"
+        f"  Cash out: {fmt_money(cash_out)}{breakdown_line}"
+    )
+
     print("---- message ----")
     print(message)
     print("-----------------")
+
     channel = open_dm(SLACK_USER_ID)
     post_slack(channel, message)
     print("posted to slack")
-    save_state(state)
-    print(f"state saved -> {STATE_FILE}")
     return 0
 
 
