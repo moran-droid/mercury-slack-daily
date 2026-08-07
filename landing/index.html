@@ -1,63 +1,45 @@
 <style>
   :root {
-    --ground: #F5F3EC;
-    --panel: #FFFFFF;
-    --panel-2: #EEEBE0;
-    --ink: #17190F;
-    --ink-soft: #4C503F;
-    --ink-faint: #797E68;
-    --line: #DCD8C9;
-    --green: #0E7A44;
-    --green-deep: #0A5230;
-    --amber: #9A6B12;
-    --red: #A8391F;
+    --ground: #F5F3EC; --panel: #FFFFFF; --panel-2: #EEEBE0;
+    --ink: #17190F; --ink-soft: #4C503F; --ink-faint: #797E68; --line: #DCD8C9;
+    --green: #0E7A44; --green-deep: #0A5230; --amber: #9A6B12; --red: #A8391F;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --ground: #0B0E08; --panel: #14180F; --panel-2: #1B2013;
-      --ink: #F0EDE1; --ink-soft: #B6BBA4; --ink-faint: #7C8369;
-      --line: #262B1A; --green: #37C87A; --green-deep: #1C8B4E;
-      --amber: #D6A94A; --red: #E4744F;
+      --ink: #F0EDE1; --ink-soft: #B6BBA4; --ink-faint: #7C8369; --line: #262B1A;
+      --green: #37C87A; --green-deep: #1C8B4E; --amber: #D6A94A; --red: #E4744F;
     }
   }
   :root[data-theme="dark"] {
     --ground: #0B0E08; --panel: #14180F; --panel-2: #1B2013;
-    --ink: #F0EDE1; --ink-soft: #B6BBA4; --ink-faint: #7C8369;
-    --line: #262B1A; --green: #37C87A; --green-deep: #1C8B4E;
-    --amber: #D6A94A; --red: #E4744F;
+    --ink: #F0EDE1; --ink-soft: #B6BBA4; --ink-faint: #7C8369; --line: #262B1A;
+    --green: #37C87A; --green-deep: #1C8B4E; --amber: #D6A94A; --red: #E4744F;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--ground); color: var(--ink);
+  body { margin: 0; background: var(--ground); color: var(--ink);
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden;
-  }
-  .wrap { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 22px; }
+    line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .wrap { width: 100%; max-width: 780px; margin: 0 auto; padding: 0 22px; }
   h1, h2, h3 { margin: 0; text-wrap: balance; letter-spacing: -0.02em; line-height: 1.1; }
-  h1 { font-size: clamp(2rem, 6vw, 3.1rem); font-weight: 850; }
-  h2 { font-size: clamp(1.4rem, 4vw, 1.9rem); font-weight: 800; }
+  h1 { font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 850; }
+  h2 { font-size: clamp(1.4rem, 4vw, 1.95rem); font-weight: 800; }
   h3 { font-size: 1.05rem; font-weight: 750; }
   p { margin: 0; }
   .eyebrow { font-family: ui-monospace, monospace; text-transform: uppercase;
     letter-spacing: 0.2em; font-size: 0.7rem; color: var(--green); font-weight: 600; }
+  .green { color: var(--green); } .red { color: var(--red); }
   a:focus-visible, .btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 
-  /* header */
   .top { border-bottom: 1px solid var(--line); background: var(--panel); }
   .top .wrap { display: flex; align-items: center; gap: 10px; height: 58px; }
-  .dot { width: 11px; height: 11px; border-radius: 2px; background: var(--green);
-    box-shadow: 3px 3px 0 var(--amber); }
+  .dot { width: 11px; height: 11px; border-radius: 2px; background: var(--green); box-shadow: 3px 3px 0 var(--amber); }
   .top b { font-weight: 800; letter-spacing: -0.02em; }
-  .top small { color: var(--ink-faint); font-size: 0.66rem; text-transform: uppercase;
-    letter-spacing: 0.12em; }
+  .top small { color: var(--ink-faint); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.12em; }
 
-  /* hero */
-  .hero { padding: clamp(40px, 8vw, 70px) 0 clamp(28px, 5vw, 44px); }
-  .sub { font-size: clamp(1.05rem, 2.4vw, 1.25rem); color: var(--ink-soft);
-    margin-top: 18px; max-width: 58ch; }
-  .green { color: var(--green); }
+  .hero { padding: clamp(40px, 8vw, 72px) 0 clamp(28px, 5vw, 44px); }
+  .sub { font-size: clamp(1.05rem, 2.4vw, 1.25rem); color: var(--ink-soft); margin-top: 18px; max-width: 58ch; }
 
-  /* bullets */
   ul.checks { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 13px; }
   ul.checks li { display: flex; gap: 12px; align-items: flex-start; font-size: 1.02rem; }
   ul.checks li::before { content: "✓"; flex: none; margin-top: 1px; width: 22px; height: 22px;
@@ -65,18 +47,10 @@
     color: var(--green); font-weight: 800; font-size: 0.8rem; display: grid; place-items: center; }
   ul.checks li b { font-weight: 700; }
 
-  ul.pains { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 11px; }
-  ul.pains li { display: flex; gap: 12px; align-items: flex-start; font-size: 1.02rem; color: var(--ink-soft); }
-  ul.pains li b { color: var(--ink); font-weight: 700; }
-  ul.pains li::before { content: "✕"; flex: none; margin-top: 1px; width: 22px; height: 22px;
-    border-radius: 50%; background: color-mix(in srgb, var(--red) 16%, transparent);
-    color: var(--red); font-weight: 800; font-size: 0.78rem; display: grid; place-items: center; }
-  .red { color: var(--red); }
-
   .cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 30px;
-    background: var(--green); color: #05170C; font: inherit; font-weight: 750;
-    text-decoration: none; padding: 14px 24px; border-radius: 4px;
-    box-shadow: 4px 4px 0 var(--green-deep); transition: transform .12s ease, box-shadow .12s ease; }
+    background: var(--green); color: #05170C; font: inherit; font-weight: 750; text-decoration: none;
+    padding: 14px 24px; border-radius: 4px; box-shadow: 4px 4px 0 var(--green-deep);
+    transition: transform .12s ease, box-shadow .12s ease; }
   .cta:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--green-deep); }
 
   section { padding: clamp(36px, 6vw, 56px) 0; border-top: 1px solid var(--line); }
@@ -84,10 +58,22 @@
   .sec-h .eyebrow { display: block; margin-bottom: 10px; }
   .lead { color: var(--ink-soft); margin-top: 10px; max-width: 60ch; }
 
-  /* deal math strip */
-  .math { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center;
-    gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
-    padding: 22px 14px; }
+  /* channels compared */
+  .bars { display: grid; gap: 14px; }
+  .barrow { display: grid; grid-template-columns: 132px 1fr 52px; align-items: center; gap: 12px; }
+  .barrow .lbl { font-size: 0.92rem; color: var(--ink-soft); }
+  .barrow .lbl b { color: var(--ink); font-weight: 700; }
+  .track { height: 30px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .fill { height: 100%; }
+  .fill.rent { background-color: color-mix(in srgb, var(--ink-faint) 32%, transparent);
+    background-image: repeating-linear-gradient(45deg, var(--ink-faint) 0 7px, transparent 7px 15px); }
+  .fill.own { background: linear-gradient(90deg, var(--green-deep), var(--green)); }
+  .barrow .num { font-weight: 850; font-variant-numeric: tabular-nums; text-align: right; font-family: ui-monospace, monospace; }
+  .barrow .num.own { color: var(--green); }
+  .bars-note { font-size: 0.8rem; color: var(--ink-faint); margin-top: 14px; }
+
+  .math { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 8px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 22px 14px; }
   .math .n { text-align: center; }
   .math .k { font-family: ui-monospace, monospace; font-size: 0.6rem; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--ink-faint); }
@@ -97,15 +83,17 @@
   .math .ar { color: var(--green); font-weight: 800; font-size: 1.2rem; text-align: center; }
   .math-note { font-size: 0.8rem; color: var(--ink-faint); margin-top: 12px; text-align: center; }
 
-  /* steps */
   .steps { display: grid; gap: 12px; }
-  .step { display: flex; gap: 14px; background: var(--panel); border: 1px solid var(--line);
-    border-radius: 10px; padding: 18px 20px; }
-  .step .num { flex: none; font-family: ui-monospace, monospace; font-weight: 700;
-    color: var(--green); font-size: 0.85rem; padding-top: 2px; }
+  .step { display: flex; gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+  .step .num { flex: none; font-family: ui-monospace, monospace; font-weight: 700; color: var(--green); font-size: 0.85rem; padding-top: 2px; }
   .step p { color: var(--ink-soft); font-size: 0.95rem; margin-top: 3px; }
 
-  /* compliance table */
+  /* sector chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 9px; }
+  .chip { border: 1px solid var(--line); background: var(--panel); border-radius: 100px;
+    padding: 8px 15px; font-size: 0.9rem; color: var(--ink-soft); }
+  .chip b { color: var(--ink); font-weight: 650; }
+
   .comp { display: grid; gap: 10px; }
   .comp .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .cell { border: 1px solid var(--line); border-radius: 9px; padding: 15px 16px; background: var(--panel); }
@@ -118,7 +106,6 @@
   .cell p { margin-top: 8px; font-size: 0.94rem; }
   .cell.no p { color: var(--ink-soft); }
 
-  /* ad cards */
   .ads { display: grid; gap: 16px; }
   .ad { border: 1px solid var(--line); border-radius: 11px; background: var(--panel); overflow: hidden; }
   .ad .hd { display: flex; justify-content: space-between; align-items: center; gap: 10px;
@@ -133,14 +120,16 @@
   .ad .field:first-child { margin-top: 0; }
   .ad .primary { white-space: pre-line; font-size: 0.96rem; color: var(--ink); }
   .ad .hl { font-weight: 750; }
+  .ad .primary mark { background: color-mix(in srgb, var(--amber) 28%, transparent); color: inherit;
+    padding: 0 3px; border-radius: 3px; font-weight: 650; }
 
   footer { border-top: 1px solid var(--line); padding: 34px 0 52px; }
   .disc { font-size: 0.74rem; color: var(--ink-faint); line-height: 1.6; }
 
   @media (max-width: 620px) {
-    .math { grid-template-columns: 1fr; }
-    .math .ar { transform: rotate(90deg); }
+    .math { grid-template-columns: 1fr; } .math .ar { transform: rotate(90deg); }
     .comp .row { grid-template-columns: 1fr; }
+    .barrow { grid-template-columns: 96px 1fr 46px; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -149,45 +138,59 @@
   <div class="wrap">
     <span class="dot" aria-hidden="true"></span>
     <b>Mercury&nbsp;Acquisitions</b>
-    <small>&nbsp;· growth by ownership</small>
+    <small>&nbsp;· the new growth channel</small>
   </div>
 </header>
 
 <main>
-  <!-- HERO: title + subtitle + bullets -->
+  <!-- HERO: new channel -->
   <section class="hero" style="border-top:0">
     <div class="wrap">
-      <span class="eyebrow">For B2B owners tired of 3× ad spend</span>
-      <h1 style="margin-top:16px">Sick of pouring cash into ads &amp; UGC that top out at <span class="red">3× ROAS</span>?</h1>
+      <span class="eyebrow">A new growth channel for B2B owners</span>
+      <h1 style="margin-top:16px">The highest-ROI channel in 2026 isn't Meta. It's <span class="green">acquisition.</span></h1>
       <p class="sub">
-        How much bigger would your business be with a <b class="green">10× return</b> on that same
-        spend — and an asset you actually <b>own</b> at the end of it? That's what buying a business
-        can do that ads never will.
+        You've maxed out Meta, Google, and UGC — all capped around 3×. There's a channel almost
+        none of your competitors are running: instead of spending ~$100k on ads, use it as a
+        <b>down payment to buy a ~$1M-revenue business</b> in your space. Own revenue instead of
+        renting clicks.
       </p>
-      <ul class="pains">
-        <li>CPMs climb every quarter — you pay <b>more</b> for the same 3× ceiling.</li>
-        <li>Ads, UGC, creators, agencies — all of it <b>rents</b> attention that vanishes the day you stop paying.</li>
-        <li>Your budget builds <b>nothing you own</b>. No asset. Nothing to sell.</li>
+      <ul class="checks">
+        <li><b>A channel you own.</b> Buy a business and keep the customers, cash flow, and an asset you can sell later.</li>
+        <li><b>~$100k down, ~90% other people's money.</b> Seller financing + acquisition loans cover the rest.</li>
+        <li><b>Done-with-you.</b> We source the target and structure the deal; you approve it in a few hours.</li>
       </ul>
-      <a class="cta" href="#apply">Show me a smarter use of $100k →</a>
+      <a class="cta" href="#apply">See if there's a deal in your market →</a>
     </div>
   </section>
 
-  <!-- deal math -->
+  <!-- channels compared -->
   <section>
     <div class="wrap">
       <div class="sec-h">
-        <span class="eyebrow">The turn</span>
-        <h2>What if that same $100k bought you a business instead?</h2>
-        <p class="lead">Take one month's ad budget and use it as a down payment on a ~$1M-revenue
-        company in your space — most of it financed by seller notes and loans. Instead of renting
-        clicks, you own the revenue, the customers, and something you can sell later.</p>
+        <span class="eyebrow">Channel vs. channel</span>
+        <h2>Every ad channel rents. One channel owns.</h2>
+        <p class="lead">You already know the ceiling on paid channels. Acquisition plays a different game — you're buying the asset, not the click.</p>
       </div>
-      <ul class="checks" style="margin-bottom:26px">
-        <li><b>Own the outcome, not a campaign.</b> Real revenue in your space, added in one move.</li>
-        <li><b>~$100k down, ~90% other people's money.</b> Seller financing + acquisition debt cover the rest.</li>
-        <li><b>Done-with-you.</b> We source the target and structure the deal; you approve it in a few hours.</li>
-      </ul>
+      <div class="bars">
+        <div class="barrow"><div class="lbl"><b>Meta</b> ads</div><div class="track"><div class="fill rent" style="width:30%"></div></div><div class="num">~3×</div></div>
+        <div class="barrow"><div class="lbl"><b>Google</b> search</div><div class="track"><div class="fill rent" style="width:38%"></div></div><div class="num">~3–4×</div></div>
+        <div class="barrow"><div class="lbl"><b>UGC</b> / creators</div><div class="track"><div class="fill rent" style="width:26%"></div></div><div class="num">~2–3×</div></div>
+        <div class="barrow"><div class="lbl"><b>Acquisition</b></div><div class="track"><div class="fill own" style="width:100%"></div></div><div class="num own">~10×</div></div>
+      </div>
+      <p class="bars-note">Illustrative ranges to compare capital efficiency across channels — not a promise of any specific return. Results vary.</p>
+    </div>
+  </section>
+
+  <!-- the turn / deal math -->
+  <section>
+    <div class="wrap">
+      <div class="sec-h">
+        <span class="eyebrow">How the channel works</span>
+        <h2>Point $100k at a business instead of an ad account.</h2>
+        <p class="lead">Take one month's ad budget and use it as a down payment on a ~$1M-revenue
+        company in your space — most of it financed by seller notes and loans. One deal can add a
+        whole business to yours.</p>
+      </div>
       <div class="math">
         <div class="n"><div class="k">You put down</div><div class="v">$100K</div></div>
         <div class="ar" aria-hidden="true">→</div>
@@ -195,108 +198,133 @@
         <div class="ar" aria-hidden="true">→</div>
         <div class="n"><div class="k">Financed by OPM</div><div class="v g">~90%</div></div>
       </div>
-      <p class="math-note">Illustrative structure — seller financing + acquisition loan, serviced by the business's cash flow. Actual terms vary by deal and lender approval.</p>
+      <p class="math-note">Illustrative structure — seller financing + acquisition loan, serviced by the business's cash flow. Terms vary and are subject to lender approval.</p>
     </div>
   </section>
 
-  <!-- how it works -->
+  <!-- steps -->
   <section>
     <div class="wrap">
-      <div class="sec-h"><span class="eyebrow">How it works</span><h2>Three steps.</h2></div>
+      <div class="sec-h"><span class="eyebrow">Running the channel</span><h2>Three steps.</h2></div>
       <div class="steps">
-        <div class="step"><span class="num">01</span><div><h3>We source the target</h3><p>Profitable, owner-ready businesses in your space — competitors, suppliers, or adjacent customer bases you'd never find on a listing site.</p></div></div>
+        <div class="step"><span class="num">01</span><div><h3>We source the target</h3><p>Profitable, owner-ready businesses in your sector — competitors, suppliers, or adjacent players you'd never find on a listing site.</p></div></div>
         <div class="step"><span class="num">02</span><div><h3>We structure the capital</h3><p>Your ~$100k anchors the deal. We layer seller financing and acquisition debt so most of it is other people's money.</p></div></div>
-        <div class="step"><span class="num">03</span><div><h3>You integrate the revenue</h3><p>Bolt the acquired customers and team onto your operation. One deal can meaningfully grow your top line.</p></div></div>
+        <div class="step"><span class="num">03</span><div><h3>You integrate the revenue</h3><p>Bolt the acquired customers and team onto your operation. Then run the channel again.</p></div></div>
       </div>
     </div>
   </section>
 
-  <!-- COMPLIANCE: the whole point of this build -->
+  <!-- sectors -->
+  <section>
+    <div class="wrap">
+      <div class="sec-h">
+        <span class="eyebrow">Who we work with</span>
+        <h2>Sectors we source deals in.</h2>
+        <p class="lead">If you run a profitable business in one of these, there's almost certainly a deal in your market.</p>
+      </div>
+      <div class="chips">
+        <span class="chip"><b>Gyms &amp; fitness</b></span>
+        <span class="chip"><b>Med spas / aesthetics</b></span>
+        <span class="chip"><b>Dental &amp; ortho</b></span>
+        <span class="chip"><b>Chiropractic</b></span>
+        <span class="chip"><b>Home services</b> (HVAC, plumbing, roofing)</span>
+        <span class="chip"><b>E-commerce / DTC</b></span>
+        <span class="chip"><b>Supplements</b></span>
+        <span class="chip"><b>Marketing agencies</b></span>
+        <span class="chip"><b>SaaS / software</b></span>
+        <span class="chip"><b>Coaching &amp; education</b></span>
+        <span class="chip"><b>Health &amp; weight-loss clinics</b></span>
+        <span class="chip"><b>Professional services</b></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- compliance -->
   <section>
     <div class="wrap">
       <div class="sec-h">
         <span class="eyebrow">Message &amp; Meta compliance</span>
         <h2>Say it this way, not that way.</h2>
-        <p class="lead">Meta rejects ads that promise specific returns, imply get-rich-quick outcomes, or claim knowledge of someone's finances. Left column is safe to run; right column gets flagged.</p>
+        <p class="lead">Meta rejects ads that promise specific returns, imply get-rich-quick, or claim knowledge of the reader's finances. Left is safe to run; right gets flagged.</p>
       </div>
       <div class="comp">
         <div class="row">
-          <div class="cell ok"><span class="tag">✓ Safe to run</span><p>“Acquiring a business can be a stronger use of capital than paid ads.”</p></div>
-          <div class="cell no"><span class="tag">✕ Gets flagged</span><p>“Guaranteed 10X ROAS — double your business, guaranteed.”</p></div>
+          <div class="cell ok"><span class="tag">✓ Safe</span><p>“A new growth channel: acquiring a business instead of buying more ads.”</p></div>
+          <div class="cell no"><span class="tag">✕ Flagged</span><p>“Guaranteed 10× ROAS — double your business, guaranteed.”</p></div>
         </div>
         <div class="row">
-          <div class="cell ok"><span class="tag">✓ Safe to run</span><p>“We help founders source and structure acquisitions in their space.”</p></div>
-          <div class="cell no"><span class="tag">✕ Gets flagged</span><p>“Give us $100k and get rich buying businesses.”</p></div>
+          <div class="cell ok"><span class="tag">✓ Safe</span><p>“We help owners source and structure acquisitions in their sector.”</p></div>
+          <div class="cell no"><span class="tag">✕ Flagged</span><p>“Give us $100k and get rich buying businesses.”</p></div>
         </div>
         <div class="row">
-          <div class="cell ok"><span class="tag">✓ Safe to run</span><p>“For B2B owners exploring acquisition as a growth channel.”</p></div>
-          <div class="cell no"><span class="tag">✕ Gets flagged</span><p>“Struggling with your ad results? Fix your finances now.”</p></div>
-        </div>
-        <div class="row">
-          <div class="cell ok"><span class="tag">✓ Safe to run</span><p>Qualifiers: “illustrative,” “results vary,” “subject to lender approval.”</p></div>
-          <div class="cell no"><span class="tag">✕ Gets flagged</span><p>Absolutes: “guaranteed,” “risk-free,” “you will,” exact income figures.</p></div>
+          <div class="cell ok"><span class="tag">✓ Safe</span><p>Qualifiers: “illustrative,” “results vary,” “subject to lender approval.”</p></div>
+          <div class="cell no"><span class="tag">✕ Flagged</span><p>Absolutes: “guaranteed,” “risk-free,” “you will,” exact income figures.</p></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ADS on the page -->
+  <!-- ADS -->
   <section>
     <div class="wrap">
       <div class="sec-h">
         <span class="eyebrow">Ad copy — 3 versions</span>
-        <h2>Compliance-tuned ads, ready to test.</h2>
-        <p class="lead">Written to pass Meta review: no guaranteed returns, qualifiers included. Copy straight into Ads Manager.</p>
+        <h2>“New channel” ads, one per sector.</h2>
+        <p class="lead">Duplicate each ad, swap <mark>[SECTOR]</mark> for the vertical (gyms, med spas, home services…), and point it at a sector-matched audience. Compliance-tuned — no guaranteed-return language.</p>
       </div>
       <div class="ads">
 
         <div class="ad">
-          <div class="hd"><b>Ad 1 — The Reframe</b><span class="pill">Coldest audience</span></div>
+          <div class="hd"><b>Ad 1 — The channel nobody's running</b><span class="pill">Cold</span></div>
           <div class="bd">
             <div class="field">Primary text</div>
-            <p class="primary"><span class="hl">Tired of ads and UGC that top out at 3× ROAS?</span>
+            <p class="primary"><span class="hl">Every <mark>[SECTOR]</mark> owner is fighting over the same Meta and Google auctions.</span>
 
-Your ad budget disappears the day the campaign ends. A business you acquire doesn't.
+Bidding each other's CPMs into the ground for a 3× return.
 
-For B2B owners: acquiring a company in your space can be a stronger use of capital than another quarter of paid ads — you own the customers and cash flow instead of renting attention.
+There's a channel almost none of them are running: acquisition. Instead of spending $100k on ads, smart [SECTOR] owners use it as a down payment to buy a ~$1M-revenue business in their market — ~90% financed by seller notes and loans.
 
-We help you put ~$100k down and structure the rest with seller financing and acquisition loans.
+Same money. An asset you own instead of a campaign that ends.
 
-See how the model works →</p>
-            <div class="field">Headline</div><p class="primary">Buy revenue, not clicks.</p>
-            <div class="field">Description</div><p class="primary">$100k down. ~90% financed. Illustrative — results vary.</p>
+See how the channel works →</p>
+            <div class="field">Headline</div><p class="primary">The growth channel your competitors aren't running.</p>
+            <div class="field">Description</div><p class="primary">Acquisition, not ads. Illustrative — results vary.</p>
           </div>
         </div>
 
         <div class="ad">
-          <div class="hd"><b>Ad 2 — Two Futures</b><span class="pill">Reframe / story</span></div>
+          <div class="hd"><b>Ad 2 — Stop bidding, start buying</b><span class="pill">Challenger</span></div>
           <div class="bd">
             <div class="field">Primary text</div>
-            <p class="primary"><span class="hl">Every $100k has two futures.</span>
+            <p class="primary"><span class="hl">Meta caps out around 3×.</span>
 
-Spend it on ads and it's gone when the campaign stops. Use it as a down payment on a ~$1M-revenue business and you own an asset that keeps producing.
+Meanwhile, another <mark>[SECTOR]</mark> business in your market is doing $1M in revenue right now.
 
-We help established B2B owners source businesses in their space and structure the deal — most of it funded by seller notes and acquisition loans, not your own cash.
+What if you bought it instead of advertising against it? We help [SECTOR] owners put ~$100k down and acquire a business in their space — most of it funded by seller financing and acquisition loans, not your cash.
 
-Curious what that looks like for your business? Book a free deal review.</p>
-            <div class="field">Headline</div><p class="primary">Don't spend $100k. Deploy it.</p>
-            <div class="field">Description</div><p class="primary">Explore acquiring a business in your space.</p>
+The highest-ROI channel in [SECTOR] isn't an ad platform. It's ownership.
+
+Book a free deal review →</p>
+            <div class="field">Headline</div><p class="primary">Stop bidding against your market. Own more of it.</p>
+            <div class="field">Description</div><p class="primary">Acquisition as a growth channel for [SECTOR].</p>
           </div>
         </div>
 
         <div class="ad">
-          <div class="hd"><b>Ad 3 — Direct Offer</b><span class="pill">Warm / retargeting</span></div>
+          <div class="hd"><b>Ad 3 — The channel after Meta &amp; Google</b><span class="pill">Warm / retarget</span></div>
           <div class="bd">
             <div class="field">Primary text</div>
-            <p class="primary"><span class="hl">We help B2B owners buy businesses in their space.</span>
+            <p class="primary"><span class="hl">You've tried Meta. You've tried Google. You've tried UGC.</span>
 
-Not a course. A done-with-you acquisition: we source off-market targets and structure the capital so roughly $100k of your money can anchor a ~$1M-revenue deal — the rest financed by seller notes and loans.
+All capped near 3×.
 
-If you run a profitable B2B business and want to explore ownership as a growth channel, let's talk.
+Here's the channel that changes the math for <mark>[SECTOR]</mark>: buying revenue. ~$100k down gets you into a ~$1M [SECTOR] business, ~90% other people's money. We source the deal and structure the financing — you approve it.
 
-Book a free, no-obligation deal review.</p>
-            <div class="field">Headline</div><p class="primary">$100k down. A business in your space.</p>
-            <div class="field">Description</div><p class="primary">Done-with-you sourcing &amp; deal structuring.</p>
+Add a whole business to yours in one move.
+
+See if there's a deal in your market →</p>
+            <div class="field">Headline</div><p class="primary">The channel after Meta and Google.</p>
+            <div class="field">Description</div><p class="primary">For [SECTOR] owners ready to own, not rent.</p>
           </div>
         </div>
 
@@ -308,9 +336,9 @@ Book a free, no-obligation deal review.</p>
   <section id="apply">
     <div class="wrap" style="text-align:center">
       <span class="eyebrow">Next step</span>
-      <h2 style="margin-top:12px">Book a free deal review.</h2>
-      <p class="lead" style="margin:12px auto 0">Tell us your space and your numbers. If there's a deal worth exploring, we'll show you what it could look like — no obligation.</p>
-      <a class="cta" href="mailto:moran@acquisitions.com?subject=Deal%20review%20request">Email us to start →</a>
+      <h2 style="margin-top:12px">See if there's a deal in your market.</h2>
+      <p class="lead" style="margin:12px auto 0">Tell us your sector and your numbers. If there's a business worth acquiring, we'll show you what the deal could look like — no obligation.</p>
+      <a class="cta" href="mailto:moran@acquisitions.com?subject=Deal%20review%20request">Book a free deal review →</a>
     </div>
   </section>
 </main>
@@ -318,13 +346,13 @@ Book a free, no-obligation deal review.</p>
 <footer>
   <div class="wrap">
     <p class="disc">
-      Illustrative figures only. The “$100k → $1M” and “~90%” examples are hypothetical and shown
-      to explain a capital structure — they are not an offer, quote, or guarantee of any specific
-      return or outcome. Acquisitions carry significant risk, including loss of capital. Financing
-      (seller notes, SBA or other loans) is subject to lender approval and eligibility, and terms,
-      valuations, and results vary by deal and market conditions. This is not investment, legal,
-      tax, or financial advice. Consult qualified advisors and conduct your own due diligence
-      before entering any transaction. © 2026 Mercury Acquisitions.
+      Illustrative figures only. The “$100k → $1M,” “~90%,” and channel “×” ranges are hypothetical,
+      shown to compare capital efficiency and explain a structure — not an offer, quote, or guarantee
+      of any specific return or outcome. Acquisitions carry significant risk, including loss of
+      capital. Financing (seller notes, SBA or other loans) is subject to lender approval and
+      eligibility; terms, valuations, and results vary by deal and market conditions. This is not
+      investment, legal, tax, or financial advice. Consult qualified advisors and conduct your own
+      due diligence before entering any transaction. © 2026 Mercury Acquisitions.
     </p>
   </div>
 </footer>
