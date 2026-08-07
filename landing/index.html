@@ -65,6 +65,14 @@
     color: var(--green); font-weight: 800; font-size: 0.8rem; display: grid; place-items: center; }
   ul.checks li b { font-weight: 700; }
 
+  ul.pains { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 11px; }
+  ul.pains li { display: flex; gap: 12px; align-items: flex-start; font-size: 1.02rem; color: var(--ink-soft); }
+  ul.pains li b { color: var(--ink); font-weight: 700; }
+  ul.pains li::before { content: "✕"; flex: none; margin-top: 1px; width: 22px; height: 22px;
+    border-radius: 50%; background: color-mix(in srgb, var(--red) 16%, transparent);
+    color: var(--red); font-weight: 800; font-size: 0.78rem; display: grid; place-items: center; }
+  .red { color: var(--red); }
+
   .cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 30px;
     background: var(--green); color: #05170C; font: inherit; font-weight: 750;
     text-decoration: none; padding: 14px 24px; border-radius: 4px;
@@ -149,21 +157,19 @@
   <!-- HERO: title + subtitle + bullets -->
   <section class="hero" style="border-top:0">
     <div class="wrap">
-      <span class="eyebrow">For B2B founders spending on ads</span>
-      <h1 style="margin-top:16px">Put your ad budget to work as a <span class="green">down payment</span> — and buy revenue instead of clicks.</h1>
+      <span class="eyebrow">For B2B owners tired of 3× ad spend</span>
+      <h1 style="margin-top:16px">Sick of pouring cash into ads &amp; UGC that top out at <span class="red">3× ROAS</span>?</h1>
       <p class="sub">
-        Paid ads rent you attention. Acquiring a business in your space gives you an asset you
-        own. We help established B2B owners use roughly <b>$100k</b> to acquire a
-        <b>~$1M-revenue</b> company — with most of the deal financed by seller notes and
-        acquisition loans, not your cash.
+        How much bigger would your business be with a <b class="green">10× return</b> on that same
+        spend — and an asset you actually <b>own</b> at the end of it? That's what buying a business
+        can do that ads never will.
       </p>
-      <ul class="checks">
-        <li><b>$100k down, ~90% other people's money.</b> Your cash anchors the deal; seller financing and acquisition debt cover the rest.</li>
-        <li><b>Buy in your own space.</b> We source off-market businesses that add revenue you can actually integrate.</li>
-        <li><b>Own the asset, not a campaign.</b> Customers, cash flow, and a company you can grow — or sell later.</li>
-        <li><b>Done-with-you.</b> We help source targets and structure the capital. You stay in control of the decision.</li>
+      <ul class="pains">
+        <li>CPMs climb every quarter — you pay <b>more</b> for the same 3× ceiling.</li>
+        <li>Ads, UGC, creators, agencies — all of it <b>rents</b> attention that vanishes the day you stop paying.</li>
+        <li>Your budget builds <b>nothing you own</b>. No asset. Nothing to sell.</li>
       </ul>
-      <a class="cta" href="#apply">Book a free deal review →</a>
+      <a class="cta" href="#apply">Show me a smarter use of $100k →</a>
     </div>
   </section>
 
@@ -171,9 +177,17 @@
   <section>
     <div class="wrap">
       <div class="sec-h">
-        <span class="eyebrow">The idea in one line</span>
-        <h2>$100k of cash → a $1M-revenue business.</h2>
+        <span class="eyebrow">The turn</span>
+        <h2>What if that same $100k bought you a business instead?</h2>
+        <p class="lead">Take one month's ad budget and use it as a down payment on a ~$1M-revenue
+        company in your space — most of it financed by seller notes and loans. Instead of renting
+        clicks, you own the revenue, the customers, and something you can sell later.</p>
       </div>
+      <ul class="checks" style="margin-bottom:26px">
+        <li><b>Own the outcome, not a campaign.</b> Real revenue in your space, added in one move.</li>
+        <li><b>~$100k down, ~90% other people's money.</b> Seller financing + acquisition debt cover the rest.</li>
+        <li><b>Done-with-you.</b> We source the target and structure the deal; you approve it in a few hours.</li>
+      </ul>
       <div class="math">
         <div class="n"><div class="k">You put down</div><div class="v">$100K</div></div>
         <div class="ar" aria-hidden="true">→</div>
@@ -240,8 +254,9 @@
           <div class="hd"><b>Ad 1 — The Reframe</b><span class="pill">Coldest audience</span></div>
           <div class="bd">
             <div class="field">Primary text</div>
-            <p class="primary"><span class="hl">Your ad budget disappears the day the campaign ends.</span>
-A business acquisition doesn't.
+            <p class="primary"><span class="hl">Tired of ads and UGC that top out at 3× ROAS?</span>
+
+Your ad budget disappears the day the campaign ends. A business you acquire doesn't.
 
 For B2B owners: acquiring a company in your space can be a stronger use of capital than another quarter of paid ads — you own the customers and cash flow instead of renting attention.
 
