@@ -1,0 +1,450 @@
+<style>
+  :root {
+    /* Light palette — "private capital, on paper" */
+    --ground: #F3F1EA;
+    --panel: #FBFAF6;
+    --panel-2: #ECE9DF;
+    --ink: #14180F;
+    --ink-soft: #4B5140;
+    --ink-faint: #757B67;
+    --line: #D8D4C6;
+    --money: #0F7A45;      /* burnished currency green */
+    --money-deep: #0A5230;
+    --gold: #9A7B1E;       /* burnished gold, used sparingly */
+    --crit: #A8391F;
+    --shadow: 20 24 14;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0A0D08;
+      --panel: #12160E;
+      --panel-2: #1A1F13;
+      --ink: #F1EEE2;
+      --ink-soft: #B7BCA6;
+      --ink-faint: #7E856C;
+      --line: #262B1B;
+      --money: #34C578;
+      --money-deep: #1C8B4E;
+      --gold: #D9B24A;
+      --crit: #E4744F;
+      --shadow: 0 0 0;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0A0D08;
+    --panel: #12160E;
+    --panel-2: #1A1F13;
+    --ink: #F1EEE2;
+    --ink-soft: #B7BCA6;
+    --ink-faint: #7E856C;
+    --line: #262B1B;
+    --money: #34C578;
+    --money-deep: #1C8B4E;
+    --gold: #D9B24A;
+    --crit: #E4744F;
+    --shadow: 0 0 0;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .mono { font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, monospace; }
+  .wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---- type scale ---- */
+  h1, h2, h3 { text-wrap: balance; margin: 0; letter-spacing: -0.02em; line-height: 1.04; }
+  .display {
+    font-weight: 850;
+    font-size: clamp(2.6rem, 7vw, 5.1rem);
+  }
+  h2 { font-weight: 800; font-size: clamp(1.7rem, 4vw, 2.7rem); }
+  h3 { font-weight: 750; font-size: 1.18rem; letter-spacing: -0.01em; }
+  .eyebrow {
+    font-family: ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 0.72rem;
+    color: var(--money);
+    font-weight: 600;
+  }
+  p { margin: 0; }
+  .lede { font-size: clamp(1.05rem, 2vw, 1.28rem); color: var(--ink-soft); max-width: 62ch; }
+
+  /* ---- top bar ---- */
+  header.bar {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--ground) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar-in { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.02em; }
+  .brand .dot { width: 12px; height: 12px; border-radius: 2px; background: var(--money);
+    box-shadow: 3px 3px 0 var(--gold); }
+  .brand small { color: var(--ink-faint); font-weight: 500; letter-spacing: 0.14em;
+    text-transform: uppercase; font-size: 0.62rem; }
+
+  /* ---- buttons ---- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    font: inherit; font-weight: 700; cursor: pointer;
+    border: 1px solid transparent; border-radius: 3px;
+    padding: 15px 26px; text-decoration: none;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+  }
+  .btn-primary { background: var(--money); color: #04160C;
+    box-shadow: 4px 4px 0 var(--money-deep); }
+  .btn-primary:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--money-deep); }
+  .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn-ghost:hover { border-color: var(--money); color: var(--money); }
+  .btn-sm { padding: 10px 18px; font-size: 0.9rem; }
+  a:focus-visible, .btn:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+  /* ---- hero ---- */
+  .hero { padding: clamp(48px, 9vw, 104px) 0 clamp(40px, 6vw, 72px); position: relative; }
+  .hero .tag { display: inline-block; margin-bottom: 22px;
+    border: 1px solid var(--line); border-radius: 100px; padding: 6px 15px 6px 12px;
+    font-size: 0.78rem; color: var(--ink-soft); background: var(--panel); }
+  .hero .tag b { color: var(--money); }
+  .display .hl { color: var(--money); }
+  .display .strike { color: var(--ink-faint); text-decoration: line-through;
+    text-decoration-color: color-mix(in srgb, var(--crit) 70%, transparent); text-decoration-thickness: 3px; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+  .hero-note { margin-top: 16px; font-size: 0.86rem; color: var(--ink-faint); }
+
+  /* ---- deal math card ---- */
+  .mathcard {
+    margin-top: 52px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: clamp(20px, 3vw, 34px);
+    box-shadow: 0 1px 0 rgb(var(--shadow) / 0.04), 0 30px 60px -40px rgb(var(--shadow) / 0.5);
+  }
+  .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 10px; }
+  .node { text-align: center; padding: 10px 6px; }
+  .node .k { font-family: ui-monospace, monospace; font-size: 0.66rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-faint); }
+  .node .v { font-weight: 850; font-size: clamp(1.5rem, 4.5vw, 2.6rem); letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .node .v.green { color: var(--money); }
+  .arrow { color: var(--money); font-weight: 800; font-size: 1.4rem; }
+  .flow .sub { font-size: 0.74rem; color: var(--ink-soft); margin-top: 2px; }
+  .capstack { margin-top: 22px; border-top: 1px dashed var(--line); padding-top: 18px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; font-size: 0.9rem; }
+  .capstack .row { display: flex; justify-content: space-between; gap: 12px;
+    font-variant-numeric: tabular-nums; }
+  .capstack .row span:first-child { color: var(--ink-soft); }
+  .capstack .row b { font-weight: 700; }
+  .capstack .row.total { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 10px;
+    margin-top: 4px; }
+  .capstack .row.total b { color: var(--money); }
+
+  /* ---- section frame ---- */
+  section { padding: clamp(56px, 8vw, 96px) 0; border-top: 1px solid var(--line); }
+  .sec-head { max-width: 60ch; margin-bottom: 40px; }
+  .sec-head .eyebrow { display: block; margin-bottom: 14px; }
+  .sec-head p { margin-top: 16px; }
+
+  /* ---- ROAS compare ---- */
+  .bars { display: grid; gap: 18px; max-width: 640px; }
+  .barrow { display: grid; grid-template-columns: 148px 1fr 64px; align-items: center; gap: 14px; }
+  .barrow .lbl { font-size: 0.9rem; color: var(--ink-soft); }
+  .track { height: 34px; background: var(--panel-2); border-radius: 4px; overflow: hidden;
+    border: 1px solid var(--line); }
+  .fill { height: 100%; border-radius: 3px 0 0 3px; }
+  .fill.meta { width: 30%; background: repeating-linear-gradient(45deg, var(--ink-faint), var(--ink-faint) 8px, transparent 8px, transparent 16px);
+    background-color: color-mix(in srgb, var(--ink-faint) 30%, transparent); }
+  .fill.acq { width: 100%; background: linear-gradient(90deg, var(--money-deep), var(--money)); }
+  .barrow .num { font-weight: 850; font-variant-numeric: tabular-nums; text-align: right;
+    font-family: ui-monospace, monospace; }
+  .barrow .num.acq { color: var(--money); }
+
+  /* ---- steps ---- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line);
+    border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .step { background: var(--panel); padding: 28px 24px; }
+  .step .n { font-family: ui-monospace, monospace; color: var(--money); font-weight: 700;
+    font-size: 0.8rem; letter-spacing: 0.1em; }
+  .step h3 { margin: 12px 0 8px; }
+  .step p { color: var(--ink-soft); font-size: 0.95rem; }
+
+  /* ---- reframe two-col ---- */
+  .versus { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line);
+    border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .col { background: var(--panel); padding: 30px 28px; }
+  .col.bad { background: var(--panel-2); }
+  .col h3 { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .col .mk { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 0.8rem; font-weight: 800; }
+  .col.bad .mk { background: color-mix(in srgb, var(--crit) 20%, transparent); color: var(--crit); }
+  .col.good .mk { background: color-mix(in srgb, var(--money) 20%, transparent); color: var(--money); }
+  .col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 13px; }
+  .col li { display: flex; gap: 11px; font-size: 0.95rem; color: var(--ink-soft); line-height: 1.45; }
+  .col li::before { content: ""; flex: none; width: 7px; height: 7px; margin-top: 8px; border-radius: 2px; }
+  .col.bad li::before { background: var(--crit); }
+  .col.good li::before { background: var(--money); }
+
+  /* ---- who ---- */
+  .fit { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .fitcard { border: 1px solid var(--line); border-radius: 8px; padding: 22px 24px; background: var(--panel); }
+  .fitcard b { color: var(--ink); }
+  .fitcard p { color: var(--ink-soft); font-size: 0.94rem; margin-top: 6px; }
+
+  /* ---- CTA ---- */
+  .cta { background: var(--panel); border-top: 1px solid var(--line); }
+  .cta-box { border: 1px solid var(--line); border-radius: 12px; background: var(--ground);
+    padding: clamp(30px, 5vw, 56px); text-align: center;
+    box-shadow: 0 40px 80px -50px rgb(var(--shadow) / 0.55); }
+  .cta-box h2 { max-width: 20ch; margin: 0 auto 16px; }
+  .cta-box .lede { margin: 0 auto; }
+  .applyrow { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 30px; }
+  .field { display: flex; align-items: center; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 4px; overflow: hidden; }
+  .field input { border: 0; background: transparent; color: var(--ink); font: inherit;
+    padding: 15px 16px; min-width: 240px; }
+  .field input::placeholder { color: var(--ink-faint); }
+  .trust { margin-top: 22px; font-size: 0.82rem; color: var(--ink-faint); display: flex;
+    gap: 20px; justify-content: center; flex-wrap: wrap; }
+  .trust span { display: inline-flex; gap: 7px; align-items: center; }
+  .trust .tk { color: var(--money); }
+
+  /* ---- footer / disclaimer ---- */
+  footer { border-top: 1px solid var(--line); padding: 40px 0 60px; }
+  .disc { font-size: 0.76rem; color: var(--ink-faint); max-width: 76ch; line-height: 1.6; }
+  .foot-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    margin-bottom: 22px; align-items: center; }
+
+  @media (max-width: 760px) {
+    .flow { grid-template-columns: 1fr; }
+    .flow .arrow { transform: rotate(90deg); justify-self: center; }
+    .capstack { grid-template-columns: 1fr; }
+    .steps, .versus, .fit { grid-template-columns: 1fr; }
+    .barrow { grid-template-columns: 96px 1fr 54px; }
+    .brand small { display: none; }
+    .bar-in .btn { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="bar">
+  <div class="wrap bar-in">
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <span>Mercury&nbsp;Acquisitions <small>&nbsp;/ growth by ownership</small></span>
+    </div>
+    <a class="btn btn-primary btn-sm" href="#apply">Apply for a deal</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="tag">For founders already spending <b>$100k+/yr</b> on ads</span>
+      <h1 class="display">
+        Stop renting attention<br>at <span class="strike">3&times;</span>.
+        Start owning revenue at&nbsp;<span class="hl">10&times;</span>.
+      </h1>
+      <p class="lede" style="margin-top:24px">
+        Meta caps out around 3&times; ROAS on a good day. Buying a business in your space
+        averages closer to 10&times; on the same cash. Put <b>$100k</b> down, we help you
+        acquire a <b>$1M-revenue</b> company using <b>~90% other people's money</b> — and
+        double your business in one move instead of one click at a time.
+      </p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#apply">Buy revenue, not clicks →</a>
+        <a class="btn btn-ghost" href="#how">See the deal math</a>
+      </div>
+      <p class="hero-note">No retainer to explore. We only win when a deal closes.</p>
+
+      <!-- deal math card -->
+      <div class="mathcard" id="how">
+        <div class="flow">
+          <div class="node">
+            <div class="k">You put in</div>
+            <div class="v">$100K</div>
+            <div class="sub">down payment</div>
+          </div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node">
+            <div class="k">We help you buy</div>
+            <div class="v green">$1M</div>
+            <div class="sub">revenue business</div>
+          </div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node">
+            <div class="k">Effective return</div>
+            <div class="v green">~10&times;</div>
+            <div class="sub">on capital deployed</div>
+          </div>
+        </div>
+        <div class="capstack">
+          <div class="row"><span>Your cash down</span><b>$100,000</b></div>
+          <div class="row"><span>Seller financing</span><b>$450,000</b></div>
+          <div class="row"><span>SBA / acquisition loan</span><b>$450,000</b></div>
+          <div class="row"><span class="mono">Other people's money</span><b>~90%</b></div>
+          <div class="row total"><span>Business acquired</span><b>$1,000,000 in revenue</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROAS compare -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">The math you already know</span>
+        <h2>You should be getting high ROAS on your spend. The channel is the ceiling.</h2>
+        <p class="lede">Same dollar, three destinations. The first two you rent forever.
+          The third you own — with cash flow, assets, and an exit.</p>
+      </div>
+      <div class="bars">
+        <div class="barrow">
+          <div class="lbl">Meta / paid ads</div>
+          <div class="track"><div class="fill meta"></div></div>
+          <div class="num">3&times;</div>
+        </div>
+        <div class="barrow">
+          <div class="lbl">Google / search</div>
+          <div class="track"><div class="fill meta" style="width:38%"></div></div>
+          <div class="num">3–4&times;</div>
+        </div>
+        <div class="barrow">
+          <div class="lbl">Acquiring a business</div>
+          <div class="track"><div class="fill acq"></div></div>
+          <div class="num acq">~10&times;</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- how it works -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">How a deal works</span>
+        <h2>From ad budget to acquired revenue in three moves.</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="n">01 / SOURCE</div>
+          <h3>We find the target</h3>
+          <p>We hunt profitable businesses in your exact space — competitors, suppliers,
+            adjacent customer bases. Off-market, owner-ready-to-exit deals you'd never see on a listing site.</p>
+        </div>
+        <div class="step">
+          <div class="n">02 / STRUCTURE</div>
+          <h3>We stack the capital</h3>
+          <p>Your $100k anchors the deal. We layer seller financing and acquisition debt so
+            ~90% is other people's money — the business's own cash flow services the note.</p>
+        </div>
+        <div class="step">
+          <div class="n">03 / INTEGRATE</div>
+          <h3>You double the business</h3>
+          <p>Bolt their revenue onto your operation: shared customers, cross-sell, one back office.
+            One deal can double your top line — then we do it again.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- reframe -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">The reframe</span>
+        <h2>Every $100k has two futures.</h2>
+      </div>
+      <div class="versus">
+        <div class="col bad">
+          <h3><span class="mk" aria-hidden="true">✕</span> Spent on ads</h3>
+          <ul>
+            <li>Gone the moment the campaign ends — nothing left on the balance sheet.</li>
+            <li>Capped near 3&times;, and CPMs rise every quarter.</li>
+            <li>You rent the audience; the platform owns it.</li>
+            <li>Zero enterprise value created. Nothing to sell one day.</li>
+          </ul>
+        </div>
+        <div class="col good">
+          <h3><span class="mk" aria-hidden="true">✓</span> Deployed as a down payment</h3>
+          <ul>
+            <li>Buys a $1M-revenue asset that keeps producing cash flow.</li>
+            <li>Averages ~10&times; on capital, financed mostly by OPM.</li>
+            <li>You own the customers, the team, and the brand outright.</li>
+            <li>Adds real enterprise value — a company you can grow, or exit.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- who it's for -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Who this is for</span>
+        <h2>Built for operators, not tire-kickers.</h2>
+      </div>
+      <div class="fit">
+        <div class="fitcard"><b>You run a real B2B business</b>
+          <p>$1M+ in revenue, profitable, and you already spend meaningfully on acquisition.</p></div>
+        <div class="fitcard"><b>You have ~$100k to deploy</b>
+          <p>Cash you'd otherwise pour into ads or another hire — ready to move on the right deal.</p></div>
+        <div class="fitcard"><b>You want to own, not rent</b>
+          <p>You're done being at the mercy of the auction and want assets that compound.</p></div>
+        <div class="fitcard"><b>You can integrate a team</b>
+          <p>You (or your ops lead) can absorb a small acquired company without dropping the ball.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="apply">
+    <div class="wrap">
+      <div class="cta-box">
+        <span class="eyebrow">Apply for a deal</span>
+        <h2 style="margin-top:14px">Give us $100k of ambition. We'll help you buy $1M of revenue.</h2>
+        <p class="lede">Tell us your space and your numbers. If there's a deal to be made,
+          we'll bring you off-market targets and the capital structure to close them.</p>
+        <form class="applyrow" action="mailto:moran@acquisitions.com" method="post" enctype="text/plain">
+          <label class="field">
+            <input type="email" name="email" placeholder="you@yourcompany.com" required aria-label="Work email">
+          </label>
+          <button class="btn btn-primary" type="submit">Request a deal review →</button>
+        </form>
+        <div class="trust">
+          <span><span class="tk">◆</span> No retainer to explore</span>
+          <span><span class="tk">◆</span> ~90% financed by OPM</span>
+          <span><span class="tk">◆</span> We only earn when you close</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-row">
+      <div class="brand">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Mercury&nbsp;Acquisitions</span>
+      </div>
+      <a class="btn btn-ghost btn-sm" href="#apply">Apply for a deal</a>
+    </div>
+    <p class="disc">
+      Illustrative figures. The $100k → $1M example and “~10&times;” and “3&times;” figures are
+      hypothetical scenarios shown to explain a capital structure, not a promise, quote, or
+      guarantee of any specific return. Acquisitions involve significant risk, including loss of
+      capital; deal terms, financing availability (seller notes, SBA or other loans), valuations,
+      and outcomes vary and depend on your business, the target, and market conditions. Financing
+      is subject to lender approval and eligibility. Nothing here is investment, legal, tax, or
+      financial advice. Do your own due diligence and consult qualified advisors before entering
+      any transaction. © 2026 Mercury Acquisitions.
+    </p>
+  </div>
+</footer>
